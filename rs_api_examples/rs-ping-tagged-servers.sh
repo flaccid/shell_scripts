@@ -8,7 +8,7 @@
 . "$HOME/.rightscale/rs_api_creds.sh"
 
 [[ $1 ]] && TAG_SEARCH="$1"
-: ${TAG_SEARCH="rs_login%3Astate%3Dactive"}    # default: tags with rs_node:dns_hostname
+: ${TAG_SEARCH="rs_login%3Astate%3Dactive"}    # default: tags with rs_login:state=active
 
 url="https://my.rightscale.com/api/acct/$rs_api_account_id/tags/search?resource_type=ec2_instance&tags=$TAG_SEARCH"
 echo "GET: $url"
