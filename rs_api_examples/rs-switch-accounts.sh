@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh -e
 
 # rs-switch-accounts.sh <account_id>
 
