@@ -30,7 +30,7 @@ echo "Search and ping servers with tag, '"$TAG_SEARCH"'".
 while read server_id; do
 	tag_element="<ip-address>"
 	echo "    INFO: get-server-settings($server_id)"
-	server_settings_xml=$(./rs-get-server-settings.sh "$server_id")
+	server_settings_xml=$(rs-get-server-settings.sh "$server_id")
 	read ip_xml <<< $(echo "$server_settings_xml" | grep "$tag_element")
 	ip_xml="${ip_xml#*>}"
 	ip="${ip_xml%<*}"
