@@ -15,7 +15,7 @@ echo "GET: $url"
 api_result=$(curl -s -H "X-API-VERSION: $rs_api_version" -b "$rs_api_cookie" "$url")
 #echo "$api_result" | grep "<state>operational"
 
-hrefs_xml=$(curl -s -H "X-API-VERSION: $rs_api_version" -b "$rs_api_cookie" "$url" | grep "<href>" | uniq)    # get unique hrefs of servers with tag
+hrefs_xml=$(echo "$api_result" | grep "<href>" | uniq)    # get unique hrefs of servers with tag
 #echo "hrefs_xml: $hrefs_xml"
 
 # get the server IDs only
