@@ -21,12 +21,14 @@ server_state() {
 	url="https://my.rightscale.com/api/acct/"$rs_api_account_id"/servers/"$server_id"/current"
 	echo "GET: $url"
     state_xml=$(curl -s -H "X-API-VERSION:$rs_api_version" -b "$rs_api_cookie" "$url" | grep state) || no_state=1
+	#echo "$state_xml"
     if [ ! "$no_state" ]; then
         state_xml="${state_xml#*>}"
         state="${state_xml%<*}"
         echo '  state: '"$state"
     else
         echo 'Server is not operational.'
+		echo "$state_xml"
     fi
 }
 
@@ -76,10 +78,15 @@ case "$state" in
         wait_for_terminate
         start_server
     ;;
+    booting)
+        echo 'Server is currently booting, exiting.'
+		exit
+    ;;
     terminated)
         start_server    # start server on no or unknown operational state
     ;;
     *)
-        start_server
+        echo 'Unknown server state, exiting.'
+		exit 1
     ;;
 esac
