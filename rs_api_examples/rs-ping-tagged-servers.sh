@@ -12,10 +12,10 @@
 
 url="https://my.rightscale.com/api/acct/$rs_api_account_id/tags/search?resource_type=ec2_instance&tags=$TAG_SEARCH"
 echo "GET: $url"
-# get unique hrefs of servers with tag
 api_result=$(curl -s -H "X-API-VERSION: $rs_api_version" -b "$rs_api_cookie" "$url")
 #echo "$api_result" | grep "<state>operational"
-hrefs_xml=$(curl -s -H "X-API-VERSION: $rs_api_version" -b "$rs_api_cookie" "$url" | grep "<href>" | uniq)
+
+hrefs_xml=$(curl -s -H "X-API-VERSION: $rs_api_version" -b "$rs_api_cookie" "$url" | grep "<href>" | uniq)    # get unique hrefs of servers with tag
 #echo "hrefs_xml: $hrefs_xml"
 
 # get the server IDs only
