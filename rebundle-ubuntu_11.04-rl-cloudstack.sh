@@ -17,7 +17,7 @@ cd "$download_dest"
 wget "http://uec-images.ubuntu.com/releases/$codename/release/$image.tar.gz" -O "$download_dest/$image.tar.gz"
 tar zxvf "$download_dest/$image.tar.gz"
 mkdir -pv "/mnt/$codename-server-cloudimg-$arch"
-mount -o loop "$download_dest/$codename-server-cloudimg-$arch.img" "$mp_chroot"
+sudo mount -o loop "$download_dest/$codename-server-cloudimg-$arch.img" "$mp_chroot"
 
 # use google dns in resolv.conf
 echo "nameserver 8.8.8.8" > "$mp_chroot/etc/resolv.conf"
