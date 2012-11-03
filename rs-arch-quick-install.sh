@@ -4,7 +4,8 @@
 
 cloud=ec2
 
-pacman --noconfirm -Syu wget bash lsb-release binutils util-linux dnsutils sudo
+#pacman --noconfirm -Syu wget bash lsb-release binutils util-linux dnsutils sudo
+pacman --noconfirm -Sy wget bash lsb-release binutils util-linux dnsutils sudo
 
 rm -Rf /tmp/rightscale
 mkdir -p /tmp/rightscale
@@ -74,15 +75,41 @@ patch -p0 << 'EOF'
  if [ "$RS_BASE_OS" == "debian" ]; then
 EOF
 
+patch -p0 << 'EOF'
+--- ./opt/rightscale/right_link/scripts/system_configurator.rb    2012-11-03 05:17:11.190532061 +0000
++++ ./opt/rightscale/right_link/scripts/system_configurator.rb    2012-11-03 05:16:01.170531495 +0000
+@@ -251,9 +251,13 @@
+     end
+ 
+     def restart_sshd
+-      sshd_name = File.exist?('/etc/init.d/sshd') ? "sshd" : "ssh"
+-      puts "Restarting SSHD..."
+-      runshell("/etc/init.d/#{sshd_name} restart")
++      if ENV['RS_BASE_OS'] == 'archlinux'
++        system('systemctl restart sshd.service')
++      else
++        sshd_name = File.exist?('/etc/init.d/sshd') ? "sshd" : "ssh"
++        puts "Restarting SSHD..."
++        runshell("/etc/init.d/#{sshd_name} restart")
++      end
+     end
+ 
+     def retrieve_cloud_hostname_and_local_ip
+EOF
+
+# end patches
+
+# mv rightscale files into place
 mv ./opt/rightscale /opt/
 
-# these shouldn't be needed'
-#mkdir -p /var/spool/ec2
-#touch /var/spool/ec2/user-data.txt
-#touch /var/spool/cloud/user-data.rb
-#chmod +x /var/spool/cloud/user-data.rb
-#chmod +x /opt/rightscale/bin/ec2/wait_for_eip.rb
-
+# run rs post-install
 sh ./postinst
 
-rm -Rf /tmp/rightscale    # cleanup
+rm -Rf /tmp/rightscale    # cleanup temp files
+
+# start rightscale (manual)
+. /opt/rightscale/etc/init.d/rightscale_functions; logger -t RightScale "Rightscale Service start."; check_invoking_user_permissions; init_os_state; install_patch_if_needed 0; init_cloud_state 1; check_for_rightscale; check_boot_state; configure_proxy; ensure_sane_hostname; ensure_sudo_privilege; ensure_fresh_ssh_host_key; create_proxy_config_file; configure_proxy; install_patch_if_needed 1
+
+# start rightlink (manual)
+. /opt/rightscale/etc/init.d/rightscale_functions;  logger -t RightScale "RightLink Service start."; check_invoking_user_permissions; init_cloud_state 0; check_invoking_user_permissions; init_os_state; check_for_rightscale; configure_proxy; check_boot_state; install_right_link_scripts; enroll_right_link_instance; deploy_right_link_agent; enable_right_link_core_dumps; start_right_link_agent; update_boot_state
+ExecStop=. /opt/rightscale/etc/init.d/rightscale_functions;  check_invoking_user_permissions; check_for_rightscale; configure_proxy
