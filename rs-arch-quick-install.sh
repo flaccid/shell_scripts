@@ -2,6 +2,8 @@
 
 # RightScale quick install for ArchLinux
 
+#curl -L https://raw.github.com/flaccid/shell_scripts/master/rs-arch-quick-install.sh | bash -s
+
 cloud=ec2
 
 #pacman --noconfirm -Syu wget bash lsb-release binutils util-linux dnsutils sudo
@@ -105,10 +107,10 @@ mv ./opt/rightscale /opt/
 # run rs post-install
 sh ./postinst
 
-rm -Rf /tmp/rightscale    # cleanup temp files
-
 # start rightscale (manual)
 . /opt/rightscale/etc/init.d/rightscale_functions; logger -t RightScale "Rightscale Service start."; check_invoking_user_permissions; init_os_state; install_patch_if_needed 0; init_cloud_state 1; check_for_rightscale; check_boot_state; configure_proxy; ensure_sane_hostname; ensure_sudo_privilege; ensure_fresh_ssh_host_key; create_proxy_config_file; configure_proxy; install_patch_if_needed 1
 
 # start rightlink (manual)
 . /opt/rightscale/etc/init.d/rightscale_functions;  logger -t RightScale "RightLink Service start."; check_invoking_user_permissions; init_cloud_state 0; check_invoking_user_permissions; init_os_state; check_for_rightscale; configure_proxy; check_boot_state; install_right_link_scripts; enroll_right_link_instance; deploy_right_link_agent; enable_right_link_core_dumps; start_right_link_agent; update_boot_state
+
+rm -Rf /tmp/rightscale    # cleanup temp files
