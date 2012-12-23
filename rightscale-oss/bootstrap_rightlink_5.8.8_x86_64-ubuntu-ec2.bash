@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # Bootstrap RightLink 5.8.8 for Ubuntu 12.04 (precise) on EC2
 
@@ -14,8 +14,8 @@ export DEBIAN_FRONTEND=noninteractive
 # update apt sources
 apt-get -y update
 
-# install rightscale/rightlink deps
-apt-get -y install libc6 debconf curl git-core
+# install rightscale/rightlink deps (and wget)
+apt-get -y install libc6 debconf curl git-core wget
 
 # create rightscale.d folder and set cloud to ec2
 mkdir -p /etc/rightscale.d
@@ -24,12 +24,21 @@ echo -n ec2 > /etc/rightscale.d/cloud
 # set intial release
 echo -n 5.8.8 > /etc/rightscale.d/rightscale-release
 
-# install rightimage service
-wget -q -O /etc/init.d/rightimage https://raw.github.com/rightscale/rightimage/master/cookbooks/rightimage/files/default/rightimage
-chmod +x /etc/init.d/rightimage
-update-rc.d rightimage defaults
+echo 'Installing RightImage service.'
+set +e
+rightimage_rc=$(curl -s -S -f https://raw.github.com/rightscale/rightimage/master/cookbooks/rightimage/files/default/rightimage)
+if [ $? -eq 0 ]; then
+  echo "$rightimage_rc" > /etc/init.d/rightimage
+  chmod +x /etc/init.d/rightimage
+  update-rc.d rightimage defaults
+else
+  echo "$rightimage_rc"
+  echo 'RightImage service install failed! Problem with GitHub?'
+fi
+set -e
 
 # install rightscale/rightlink
+echo 'Installing RightScale RightLink.'
 cd /tmp
 wget http://mirror.rightscale.com/rightlink/5.8.8/ubuntu/rightscale_5.8.8-ubuntu_12.04-amd64.deb
 dpkg -i rightscale_5.8.8-ubuntu_12.04-amd64.deb
